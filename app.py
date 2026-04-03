@@ -73,7 +73,12 @@ def get_status_info(quota, ev_type):
 
 # --- 6. RENDER ENGINE ---
 def draw_ui(url, key_prefix, ev_type):
-    query = st.text_input("Cari Oshi...", key=f"search_{key_prefix}", placeholder="Ketik nama...").lower().strip()
+    # Search Box menggunakan key agar nilainya tersimpan di session_state
+    search_key = f"search_input_{key_prefix}"
+    st.text_input("Cari Oshi...", key=search_key, placeholder="Ketik nama...")
+    
+    # Ambil nilai query secara real-time dari session_state
+    query = st.session_state.get(search_key, "").lower().strip()
     
     data = get_data(url)
     if not data:
@@ -82,6 +87,8 @@ def draw_ui(url, key_prefix, ev_type):
 
     for sesi in data.get('data', []):
         members = sesi.get('session_members', [])
+        
+        # Filter jalan otomatis tiap detik mengikuti isi query
         if query:
             members = [m for m in members if query in m.get('member_name', '').lower()]
         
