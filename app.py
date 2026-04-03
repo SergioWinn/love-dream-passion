@@ -8,12 +8,12 @@ st.set_page_config(page_title="LOVE DREAM PASSION", layout="wide", page_icon="�
 # --- 2. SILENT AUTO REFRESH (5 Detik) ---
 st_autorefresh(interval=5000, key="ldp_autorefresh")
 
-# --- 3. UI/UX STYLING (ANTI-BOCOR SYSTEM) ---
-# Tulis rapi ke bawah, biar Python yang meratakan jadi 1 baris
-css_mentah = """
+# --- 3. UI/UX STYLING (ANTI BOCOR 100%) ---
+# Tidak ada komentar, tidak ada simbol bintang (*), aman dari Markdown parser
+css = """
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
-html, body, [class*="css"] { font-family: 'Inter', sans-serif; color: #1f2937; }
+html, body, .stApp { font-family: 'Inter', sans-serif; color: #1f2937; }
 .block-container { padding-top: 2rem; padding-bottom: 2rem; max-width: 1400px; }
 .ldp-main-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 25px; border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 20px; flex-wrap: wrap; gap: 10px; }
 .ldp-title { font-weight: 800; font-size: 2.5rem; color: #111827; margin: 0; line-height: 1.2; }
@@ -40,17 +40,17 @@ html, body, [class*="css"] { font-family: 'Inter', sans-serif; color: #1f2937; }
 .stTextInput input { border-radius: 10px; border: 1px solid rgba(0,0,0,0.1); padding: 12px; }
 </style>
 """
-# RAHASIA ANTI BOCOR: Paksa hapus semua spasi enter (\n) sebelum dikirim ke Streamlit
-st.markdown(css_mentah.replace('\n', ''), unsafe_allow_html=True)
+# Pemusnah baris baru Windows (\r) & Linux (\n)
+st.markdown(css.replace('\n', '').replace('\r', ''), unsafe_allow_html=True)
 
 # --- 4. RENDER HEADER ---
-header_mentah = """
+header = """
 <div class="ldp-main-header">
     <h1 class="ldp-title">Meet & Greet - 23 May</h1>
     <div class="live-badge-wrapper"><span class="live-dot"></span> LIVE</div>
 </div>
 """
-st.markdown(header_mentah.replace('\n', ''), unsafe_allow_html=True)
+st.markdown(header.replace('\n', '').replace('\r', ''), unsafe_allow_html=True)
 
 # --- 5. URL ENDPOINT & AMBIL DATA ---
 URL_2SHOT = "https://jkt48.com/api/v1/exclusives/EX579E/bonus?lang=id"
@@ -58,18 +58,27 @@ URL_MNG = "https://jkt48.com/api/v1/exclusives/EXE588/bonus?lang=id"
 
 @st.cache_data(ttl=5)
 def fetch_jkt48_data(url):
-    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) LDP Modern Monitor v1.0"}
+    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
     try:
         response = requests.get(url, headers=headers)
         response.raise_for_status()
         return response.json()
-    except Exception as e:
-        return None
+    except requests.exceptions.RequestException as e:
+        # Jika gagal, kirim errornya biar ketahuan kalau diblokir
+        return {"error": str(e)}
 
 # --- 6. FUNGSI RENDER UI MODERN CARDS ---
 def render_modern_ldp_cards(data, search_query=""):
-    if not data or data.get('status') is not True:
+    if not data:
         st.info("Memperbarui data terbaru dari server JKT48...")
+        return
+        
+    if 'error' in data:
+        st.error(f"Gagal narik data! (Kemungkinan IP Streamlit diblokir server JKT48): {data['error']}")
+        return
+        
+    if data.get('status') is not True:
+        st.warning("Data belum tersedia atau sesi ditutup...")
         return
     
     try:
@@ -88,7 +97,6 @@ def render_modern_ldp_cards(data, search_query=""):
             if not members: continue 
             ada_member_ditemukan = True
 
-            # HTML Sesi Wrapper
             sesi_html = f"""
             <div class="sesi-section">
                 <div class="sesi-header-wrapper">
@@ -97,7 +105,7 @@ def render_modern_ldp_cards(data, search_query=""):
                 </div>
                 <div class="cards-flex-container">
             """
-            st.markdown(sesi_html.replace('\n', ''), unsafe_allow_html=True)
+            st.markdown(sesi_html.replace('\n', '').replace('\r', ''), unsafe_allow_html=True)
             
             html_cards_all = ""
             for m in members:
@@ -106,7 +114,6 @@ def render_modern_ldp_cards(data, search_query=""):
                 m_name = m.get('member_name', '')
                 jalur = m.get('label', '')
                 
-                # HTML Card Single
                 card_html = f"""
                 <div class="ldp-card {c_class}">
                     <div>
@@ -116,17 +123,17 @@ def render_modern_ldp_cards(data, search_query=""):
                     <div class="card-badge">{s_text}</div>
                 </div>
                 """
-                html_cards_all += card_html.replace('\n', '')
+                html_cards_all += card_html.replace('\n', '').replace('\r', '')
             
             st.markdown(f"{html_cards_all}</div></div>", unsafe_allow_html=True)
 
         if not ada_member_ditemukan and search_query:
-            not_found_msg = f"""
+            not_found = f"""
             <div style='text-align: center; padding: 50px 20px; color: #9ca3af; font-size: 15px; border-radius: 12px; background-color: #f9fafb; border: 1px solid rgba(0,0,0,0.03);'>
-                🔍 Maaf, Oshi "<b>{search_query}</b>" tidak ditemukan di event Meet & Greet ini.
+                🔍 Maaf, Oshi "<b>{search_query}</b>" tidak ditemukan.
             </div>
             """
-            st.markdown(not_found_msg.replace('\n', ''), unsafe_allow_html=True)
+            st.markdown(not_found.replace('\n', '').replace('\r', ''), unsafe_allow_html=True)
 
     except Exception as e:
         st.error(f"Terjadi kendala teknis saat menyusun tampilan: {e}")
@@ -135,13 +142,13 @@ def render_modern_ldp_cards(data, search_query=""):
 tab1, tab2 = st.tabs(["📸 2-Shot", "🤝 Meet & Greet"])
 
 with tab1:
-    search_2shot = st.text_input("Cari member 2-Shot favoritmu...", key="s_2shot", placeholder="Ketik nama member kesayanganmu...")
+    search_2shot = st.text_input("Cari member 2-Shot...", key="s_2shot", placeholder="Ketik nama...")
     st.markdown("<div style='height: 20px;'></div>", unsafe_allow_html=True) 
     data_2shot = fetch_jkt48_data(URL_2SHOT)
     render_modern_ldp_cards(data_2shot, search_2shot)
 
 with tab2:
-    search_mng = st.text_input("Cari member M&G favoritmu...", key="s_mng", placeholder="Ketik nama member kesayanganmu...")
+    search_mng = st.text_input("Cari member M&G...", key="s_mng", placeholder="Ketik nama...")
     st.markdown("<div style='height: 20px;'></div>", unsafe_allow_html=True)
     data_mng = fetch_jkt48_data(URL_MNG)
     render_modern_ldp_cards(data_mng, search_mng)
