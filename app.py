@@ -5,8 +5,8 @@ from streamlit_autorefresh import st_autorefresh
 # --- 1. KONFIGURASI HALAMAN ---
 st.set_page_config(page_title="LOVE DREAM PASSION", layout="wide", page_icon="🔴")
 
-# --- 2. SUPER FAST REFRESH (1 Detik) ---
-st_autorefresh(interval=1000, key="ldp_hyper_refresh")
+# --- 2. SUPER FAST REFRESH (3 Detik) ---
+st_autorefresh(interval=3000, key="ldp_hyper_refresh")
 
 # --- 3. UI/UX STYLING (CLEAN VERSION) ---
 css = """
