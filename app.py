@@ -65,7 +65,7 @@ html, body, .stApp { font-family: 'Inter', sans-serif; }
 st.markdown(css.replace('\n', '').replace('\r', ''), unsafe_allow_html=True)
 
 # --- 4. RENDER HEADER ---
-st.markdown('<div class="ldp-header"><h1 class="ldp-title">Meet & Greet - 23 May</h1><div class="live-badge"><span class="live-dot"></span> MONITORING LIVE (5s)</div></div>', unsafe_allow_html=True)
+st.markdown('<div class="ldp-header"><h1 class="ldp-title">Meet & Greet - 23 May</h1><div class="live-badge"><span class="live-dot"></span> MONITORING LIVE</div></div>', unsafe_allow_html=True)
 
 # --- 5. DATA ENGINE ---
 @st.cache_data(ttl=4)
