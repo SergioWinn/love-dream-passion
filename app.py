@@ -6,10 +6,9 @@ from streamlit_autorefresh import st_autorefresh
 st.set_page_config(page_title="LOVE DREAM PASSION", layout="wide", page_icon="🔴")
 
 # --- 2. SUPER FAST REFRESH (1 Detik) ---
-# Ini jantungnya, tiap 1 detik dia bakal baca ulang input search lu
 st_autorefresh(interval=1000, key="ldp_hyper_refresh")
 
-# --- 3. UI/UX STYLING ---
+# --- 3. UI/UX STYLING (CLEAN VERSION) ---
 css = """
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
@@ -34,12 +33,13 @@ html, body, .stApp { font-family: 'Inter', sans-serif; }
 .ldp-card.sold .c-badge { background: #EF4444; color: #FFFFFF; }
 @media (max-width: 500px) { .cards-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; } .ldp-card { padding: 15px 10px; } }
 </style>
-""", unsafe_allow_html=True)
+"""
+st.markdown(css.replace('\n', '').replace('\r', ''), unsafe_allow_html=True)
 
 # --- 4. HEADER ---
 st.markdown('<div class="ldp-header"><h1 class="ldp-title">Meet & Greet - 23 May</h1><div class="live-badge"><span class="live-dot"></span> LIVE 1s</div></div>', unsafe_allow_html=True)
 
-# --- 5. LOGIKA DATA ---
+# --- 5. LOGIKA DATA & STATUS ---
 URL_2SHOT = "https://jkt48.com/api/v1/exclusives/EX579E/bonus?lang=id"
 URL_MNG = "https://jkt48.com/api/v1/exclusives/EXE588/bonus?lang=id"
 
@@ -48,20 +48,23 @@ def get_data(url):
     try:
         r = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=3)
         return r.json() if r.status_code == 200 else None
-    except: return None
+    except:
+        return None
 
 def get_status_info(quota, ev_type):
-    if quota <= 0: return "sold", "HABIS"
+    if quota <= 0:
+        return "sold", "HABIS"
     limit = 5 if ev_type == "2shot" else 20
-    return ("warn", f"SISA {quota}") if quota < limit else ("avail", f"SISA {quota}")
+    if quota < limit:
+        return "warn", f"SISA {quota}"
+    return "avail", f"SISA {quota}"
 
 # --- 6. RENDER ENGINE ---
 def draw_ui(url, key_prefix, ev_type):
-    # Search Box dengan key agar bisa dibaca session_state
     search_key = f"search_input_{key_prefix}"
     st.text_input("Cari Oshi...", key=search_key, placeholder="Ketik nama...")
     
-    # Ambil nilai search langsung dari session_state (tanpa nunggu Enter)
+    # Real-time search dari session state
     query = st.session_state.get(search_key, "").lower().strip()
     
     data = get_data(url)
@@ -71,8 +74,6 @@ def draw_ui(url, key_prefix, ev_type):
 
     for sesi in data.get('data', []):
         members = sesi.get('session_members', [])
-        
-        # Filter jalan terus tiap detik
         if query:
             members = [m for m in members if query in m.get('member_name', '').lower()]
         
