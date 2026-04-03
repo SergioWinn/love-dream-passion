@@ -37,7 +37,7 @@ html, body, .stApp { font-family: 'Inter', sans-serif; }
 st.markdown(css.replace('\n', '').replace('\r', ''), unsafe_allow_html=True)
 
 # --- 4. HEADER ---
-st.markdown('<div class="ldp-header"><h1 class="ldp-title">Meet & Greet - 23 May</h1><div class="live-badge"><span class="live-dot"></span> LIVE 1s</div></div>', unsafe_allow_html=True)
+st.markdown('<div class="ldp-header"><h1 class="ldp-title">Meet & Greet - 23 May</h1><div class="live-badge"><span class="live-dot"></span> LIVE</div></div>', unsafe_allow_html=True)
 
 # --- 5. LOGIKA DATA & STATUS ---
 URL_2SHOT = "https://jkt48.com/api/v1/exclusives/EX579E/bonus?lang=id"
