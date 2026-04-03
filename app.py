@@ -6,49 +6,40 @@ from streamlit_autorefresh import st_autorefresh
 st.set_page_config(page_title="LOVE DREAM PASSION", layout="wide", page_icon="🔴")
 
 # --- 2. SUPER FAST REFRESH (1 Detik) ---
+# Ini jantungnya, tiap 1 detik dia bakal baca ulang input search lu
 st_autorefresh(interval=1000, key="ldp_hyper_refresh")
 
-# --- 3. UI/UX STYLING (MINIMALIST COLORS) ---
+# --- 3. UI/UX STYLING ---
 css = """
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
 html, body, .stApp { font-family: 'Inter', sans-serif; }
 .block-container { padding-top: 2rem; padding-bottom: 2rem; max-width: 1400px; }
-
 .ldp-header { text-align: center; margin-bottom: 30px; border-bottom: 1px solid rgba(128,128,128,0.2); padding-bottom: 20px; }
 .ldp-title { font-weight: 800; font-size: 2.2rem; margin: 0; margin-bottom: 10px; }
 .live-badge { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: 12px; color: #10B981; background: rgba(16,185,129,0.1); padding: 5px 12px; border-radius: 20px; }
 .live-dot { height: 8px; width: 8px; background: #10B981; border-radius: 50%; display: inline-block; animation: pulse_dot 1s infinite; }
 @keyframes pulse_dot { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
-
 .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 15px; justify-content: center; }
-
 .ldp-card { background: rgba(128,128,128,0.05); border-radius: 12px; padding: 20px; border: 1px solid rgba(128,128,128,0.2); display: flex; flex-direction: column; justify-content: space-between; height: 100%; text-align: center; }
-
-/* INDIKATOR WARNA */
-.ldp-card.avail { border-bottom: 5px solid #10B981; } /* Hijau */
-.ldp-card.warn { border-bottom: 5px solid #FBBF24; animation: card_pulse 1.5s infinite; } /* Kuning */
-.ldp-card.sold { border-bottom: 5px solid #EF4444; background: rgba(239, 68, 68, 0.05); } /* Merah */
-
+.ldp-card.avail { border-bottom: 5px solid #10B981; }
+.ldp-card.warn { border-bottom: 5px solid #FBBF24; animation: card_pulse 1.5s infinite; }
+.ldp-card.sold { border-bottom: 5px solid #EF4444; background: rgba(239, 68, 68, 0.05); }
 @keyframes card_pulse { 0% { box-shadow: 0 0 0 0 rgba(251,191,36,0.4); } 70% { box-shadow: 0 0 0 10px rgba(251,191,36,0); } 100% { box-shadow: 0 0 0 0 rgba(251,191,36,0); } }
-
 .c-jalur { font-size: 10px; opacity: 0.6; font-weight: 600; text-transform: uppercase; margin-bottom: 5px; }
 .c-member { font-weight: 700; font-size: 15px; line-height: 1.2; margin-bottom: 15px; height: 2.4em; overflow: hidden; }
-
 .c-badge { font-size: 10px; font-weight: 800; padding: 6px; border-radius: 15px; text-transform: uppercase; width: 100%; display: block; }
 .ldp-card.avail .c-badge { background: rgba(16,185,129,0.2); color: #10B981; }
 .ldp-card.warn .c-badge { background: rgba(251,191,36,0.25); color: #D97706; }
 .ldp-card.sold .c-badge { background: #EF4444; color: #FFFFFF; }
-
 @media (max-width: 500px) { .cards-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; } .ldp-card { padding: 15px 10px; } }
 </style>
-"""
-st.markdown(css.replace('\n', ''), unsafe_allow_html=True)
+""", unsafe_allow_html=True)
 
 # --- 4. HEADER ---
 st.markdown('<div class="ldp-header"><h1 class="ldp-title">Meet & Greet - 23 May</h1><div class="live-badge"><span class="live-dot"></span> LIVE 1s</div></div>', unsafe_allow_html=True)
 
-# --- 5. LOGIKA STATUS ---
+# --- 5. LOGIKA DATA ---
 URL_2SHOT = "https://jkt48.com/api/v1/exclusives/EX579E/bonus?lang=id"
 URL_MNG = "https://jkt48.com/api/v1/exclusives/EXE588/bonus?lang=id"
 
@@ -60,24 +51,17 @@ def get_data(url):
     except: return None
 
 def get_status_info(quota, ev_type):
-    if quota <= 0:
-        return "sold", "HABIS"
-    
-    # Threshold Kuning
+    if quota <= 0: return "sold", "HABIS"
     limit = 5 if ev_type == "2shot" else 20
-    
-    if quota < limit:
-        return "warn", f"SISA {quota}"
-    
-    return "avail", f"SISA {quota}"
+    return ("warn", f"SISA {quota}") if quota < limit else ("avail", f"SISA {quota}")
 
 # --- 6. RENDER ENGINE ---
 def draw_ui(url, key_prefix, ev_type):
-    # Search Box menggunakan key agar nilainya tersimpan di session_state
+    # Search Box dengan key agar bisa dibaca session_state
     search_key = f"search_input_{key_prefix}"
     st.text_input("Cari Oshi...", key=search_key, placeholder="Ketik nama...")
     
-    # Ambil nilai query secara real-time dari session_state
+    # Ambil nilai search langsung dari session_state (tanpa nunggu Enter)
     query = st.session_state.get(search_key, "").lower().strip()
     
     data = get_data(url)
@@ -88,7 +72,7 @@ def draw_ui(url, key_prefix, ev_type):
     for sesi in data.get('data', []):
         members = sesi.get('session_members', [])
         
-        # Filter jalan otomatis tiap detik mengikuti isi query
+        # Filter jalan terus tiap detik
         if query:
             members = [m for m in members if query in m.get('member_name', '').lower()]
         
