@@ -8,72 +8,34 @@ st.set_page_config(page_title="LOVE DREAM PASSION", layout="wide", page_icon="ðŸ
 # --- 2. SILENT AUTO REFRESH (1 Detik) ---
 st_autorefresh(interval=1000, key="ldp_autorefresh")
 
-# --- 3. UI/UX STYLING (CENTERED & ADAPTIVE DARK/LIGHT MODE) ---
+# --- 3. UI/UX STYLING (ANTI BOCOR) ---
 css = """
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
-
-/* Font Family - Hapus warna hardcode agar ikut tema Streamlit otomatis */
 html, body, .stApp { font-family: 'Inter', sans-serif; }
 .block-container { padding-top: 2rem; padding-bottom: 2rem; max-width: 1400px; }
-
-/* Header - Dibuat Center */
 .ldp-main-header { display: flex; align-items: center; justify-content: center; margin-bottom: 25px; border-bottom: 1px solid rgba(128,128,128,0.2); padding-bottom: 20px; flex-wrap: wrap; gap: 15px; text-align: center; }
 .ldp-title { font-weight: 800; font-size: 2.2rem; margin: 0; line-height: 1.2; }
-
-/* Live Badge */
 .live-badge-wrapper { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 13px; color: #10B981; background-color: rgba(16, 185, 129, 0.15); padding: 6px 14px; border-radius: 30px; border: 1px solid rgba(16, 185, 129, 0.3); }
 .live-dot { height: 10px; width: 10px; background-color: #10B981; border-radius: 50%; display: inline-block; animation: ldp_pulse 2s infinite; }
 @keyframes ldp_pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(1.1); } 100% { opacity: 1; transform: scale(1); } }
-
-/* Tabs - Dibuat Center */
 .stTabs [data-baseweb="tab-list"] { gap: 40px; justify-content: center; }
 .stTabs [data-baseweb="tab"] { height: 60px; background-color: transparent; border: none; padding: 10px 0px; font-size: 17px; font-weight: 400; }
 .stTabs [aria-selected="true"] { border-bottom: 4px solid #E52B38; color: #E52B38; font-weight: 700; }
-
-/* Sesi Headers - Dibuat Center */
 .sesi-section { margin-top: 30px; margin-bottom: 50px; }
 .sesi-header-wrapper { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 25px; flex-wrap: wrap; }
 .sesi-title { font-size: 1.5rem; font-weight: 700; margin: 0; }
 .sesi-time-badge { font-size: 14px; font-weight: 600; opacity: 0.8; background: rgba(128,128,128,0.15); padding: 4px 12px; border-radius: 8px; }
-
-/* CONTAINER KARTU - DIBUAT CENTER (Tadinya flex-start) */
 .cards-flex-container { display: flex; flex-wrap: wrap; gap: 18px; justify-content: center; }
-
-/* Kartu Minimalis - Support Dark/Light Mode dengan rgba transparan */
-.ldp-card { 
-    background-color: rgba(128,128,128, 0.03); 
-    border-radius: 12px; 
-    padding: 22px; 
-    width: 185px; 
-    display: flex; 
-    flex-direction: column; 
-    justify-content: space-between; 
-    border: 1px solid rgba(128,128,128,0.2); 
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
-    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1); 
-    cursor: default; 
-}
-.ldp-card:hover { 
-    transform: translateY(-5px); 
-    border-color: rgba(128,128,128,0.4); 
-    box-shadow: 0 8px 15px rgba(0,0,0,0.1); 
-}
-
-/* Status Styling */
+.ldp-card { background-color: rgba(128,128,128, 0.03); border-radius: 12px; padding: 22px; width: 185px; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid rgba(128,128,128,0.2); box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1); cursor: default; }
+.ldp-card:hover { transform: translateY(-5px); border-color: rgba(128,128,128,0.4); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
 .ldp-card.avail { border-bottom: 4px solid #10B981; }
 .ldp-card.sold { border-bottom: 4px solid rgba(128,128,128,0.3); background-color: rgba(128,128,128,0.08); opacity: 0.6; filter: grayscale(50%); }
-
-/* Card Typography - Hapus warna hitam statis, gunakan opacity */
 .card-jalur { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.6; margin-bottom: 5px; font-weight: 600; }
 .card-member { font-weight: 700; font-size: 16px; margin-bottom: 18px; line-height: 1.3; height: 2.6em; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-
-/* Badge Status */
 .card-badge { align-self: center; font-size: 11px; font-weight: 700; padding: 6px 12px; border-radius: 20px; letter-spacing: 0.3px; width: 100%; text-align: center;}
 .ldp-card.avail .card-badge { background-color: rgba(16, 185, 129, 0.15); color: #10B981; }
 .ldp-card.sold .card-badge { background-color: rgba(128,128,128,0.2); color: inherit; opacity: 0.8; }
-
-/* Input Search Minimalis */
 .stTextInput input { border-radius: 10px; border: 1px solid rgba(128,128,128,0.3); padding: 12px; background: transparent; }
 </style>
 """
@@ -132,7 +94,8 @@ def render_modern_ldp_cards(data, search_query=""):
             if not members: continue 
             ada_member_ditemukan = True
 
-            sesi_html = f"""
+            # PERBAIKAN: Semua HTML dirangkai dalam 1 string utuh terlebih dahulu
+            full_html_block = f"""
             <div class="sesi-section">
                 <div class="sesi-header-wrapper">
                     <div class="sesi-title">{nama_sesi}</div>
@@ -140,9 +103,7 @@ def render_modern_ldp_cards(data, search_query=""):
                 </div>
                 <div class="cards-flex-container">
             """
-            st.markdown(sesi_html.replace('\n', '').replace('\r', ''), unsafe_allow_html=True)
             
-            html_cards_all = ""
             for m in members:
                 c_class = "avail" if m.get('quota', 0) > 0 else "sold"
                 s_text = f"SISA {m.get('quota', 0)}" if c_class == "avail" else "HABIS"
@@ -158,9 +119,12 @@ def render_modern_ldp_cards(data, search_query=""):
                     <div class="card-badge">{s_text}</div>
                 </div>
                 """
-                html_cards_all += card_html.replace('\n', '').replace('\r', '')
+                full_html_block += card_html
             
-            st.markdown(f"{html_cards_all}</div></div>", unsafe_allow_html=True)
+            full_html_block += "</div></div>"
+            
+            # Render sekaligus setelah semua dijahit rapi
+            st.markdown(full_html_block.replace('\n', '').replace('\r', ''), unsafe_allow_html=True)
 
         if not ada_member_ditemukan and search_query:
             not_found = f"""
