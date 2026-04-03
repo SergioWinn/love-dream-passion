@@ -17,16 +17,14 @@ st_autorefresh(interval=1000, key="ldp_autorefresh")
 st.markdown("""
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
-    /* Global Font & Layout Fixes */
     html, body, [class*="css"] { font-family: 'Inter', sans-serif; color: #1f2937; }
-    .block-container { padding-top: 2rem; padding-bottom: 2rem; max_width: 1400px;}
+    .block-container { padding-top: 2rem; padding-bottom: 2rem; max-width: 1400px; }
     
-    /* Modern Header & LIVE Badge */
-    .ldp-main-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 25px; border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 20px; flex-wrap: wrap; gap: 10px;}
-    .ldp-title { font_weight: 800; font_size: 2.5rem; color: #111827; margin: 0; line-height: 1.2;}
+    .ldp-main-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 25px; border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+    .ldp-title { font-weight: 800; font-size: 2.5rem; color: #111827; margin: 0; line-height: 1.2; }
     
-    .live-badge-wrapper { display: flex; align-items: center; gap: 8px; font_weight: 700; font_size: 13px; color: #10B981; background_color: rgba(16, 185, 129, 0.1); padding: 6px 14px; border_radius: 30px; border: 1px solid rgba(16, 185, 129, 0.2);}
-    .live-dot { height: 10px; width: 10px; background_color: #10B981; border_radius: 50%; display: inline-block; animation: ldp_pulse 2s infinite; }
+    .live-badge-wrapper { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 13px; color: #10B981; background-color: rgba(16, 185, 129, 0.1); padding: 6px 14px; border-radius: 30px; border: 1px solid rgba(16, 185, 129, 0.2); }
+    .live-dot { height: 10px; width: 10px; background-color: #10B981; border-radius: 50%; display: inline-block; animation: ldp_pulse 2s infinite; }
     
     @keyframes ldp_pulse {
         0% { opacity: 1; transform: scale(1); }
@@ -34,25 +32,22 @@ st.markdown("""
         100% { opacity: 1; transform: scale(1); }
     }
 
-    /* Clean Tabs Styling */
     .stTabs [data-baseweb="tab-list"] { gap: 40px; }
-    .stTabs [data-baseweb="tab"] { height: 60px; background-color: transparent; border: none; padding: 10px 0px; font-size: 17px; color: #6b7280; font-weight: 400;}
-    .stTabs [aria-selected="true"] { border-bottom: 4px solid #E52B38; color: #E52B38; font-weight: 700;}
+    .stTabs [data-baseweb="tab"] { height: 60px; background-color: transparent; border: none; padding: 10px 0px; font-size: 17px; color: #6b7280; font-weight: 400; }
+    .stTabs [aria-selected="true"] { border-bottom: 4px solid #E52B38; color: #E52B38; font-weight: 700; }
 
-    /* Modern Card Layout */
-    .sesi-section { margin-top: 30px; margin-bottom: 50px;}
-    .sesi-header-wrapper { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; flex_wrap: wrap;}
-    .sesi-title { font_size: 1.5rem; font_weight: 700; color: #374151; margin: 0;}
-    .sesi-time-badge { font_size: 14px; font_weight: 400; color: #6b7280; background: #f3f4f6; padding: 4px 10px; border_radius: 8px;}
+    .sesi-section { margin-top: 30px; margin-bottom: 50px; }
+    .sesi-header-wrapper { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+    .sesi-title { font-size: 1.5rem; font-weight: 700; color: #374151; margin: 0; }
+    .sesi-time-badge { font-size: 14px; font-weight: 400; color: #6b7280; background: #f3f4f6; padding: 4px 10px; border-radius: 8px; }
     
-    .cards-flex-container { display: flex; flex_wrap: wrap; gap: 18px; justify_content: flex_start; }
+    .cards-flex-container { display: flex; flex-wrap: wrap; gap: 18px; justify-content: flex-start; }
     
-    /* Modern Card Minimalis Design */
     .ldp-card {
         background-color: #ffffff;
         border-radius: 12px; 
         padding: 22px; 
-        width: 185px; /* Lebar kotak stabil */
+        width: 185px;
         display: flex; 
         flex-direction: column; 
         justify-content: space-between;
@@ -64,24 +59,20 @@ st.markdown("""
     .ldp-card:hover { 
         box-shadow: 0 10px 20px rgba(0,0,0,0.06); 
         transform: translateY(-5px); 
-        border_color: rgba(0,0,0,0.1);
+        border-color: rgba(0,0,0,0.1);
     }
     
-    /* Status Styling */
     .ldp-card.avail { border-bottom: 4px solid #10B981; }
-    .ldp-card.sold { border-bottom: 4px solid #e5e7eb; background-color: #f9fafb; opacity: 0.7;}
+    .ldp-card.sold { border-bottom: 4px solid #e5e7eb; background-color: #f9fafb; opacity: 0.7; }
     
-    /* Card Typography */
-    .card-jalur { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #9ca3af; margin-bottom: 5px; font-weight: 600;}
-    .card-member { font-weight: 700; font-size: 16px; margin-bottom: 18px; line-height: 1.3; color: #111827; height: 2.6em; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;}
+    .card-jalur { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #9ca3af; margin-bottom: 5px; font-weight: 600; }
+    .card-member { font-weight: 700; font-size: 16px; margin-bottom: 18px; line-height: 1.3; color: #111827; height: 2.6em; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
     
-    /* Badge Status Minimalis */
-    .card-badge { align-self: flex-start; font-size: 11px; font-weight: 700; padding: 6px 12px; border_radius: 20px; letter-spacing: 0.3px;}
+    .card-badge { align-self: flex-start; font-size: 11px; font-weight: 700; padding: 6px 12px; border-radius: 20px; letter-spacing: 0.3px; }
     .ldp-card.avail .card-badge { background-color: #ecfdf5; color: #059669; }
     .ldp-card.sold .card-badge { background-color: #f3f4f6; color: #9ca3af; }
     
-    /* Input Search Minimalis */
-    .stTextInput input { border_radius: 10px; border: 1px solid rgba(0,0,0,0.1); padding: 12px; }
+    .stTextInput input { border-radius: 10px; border: 1px solid rgba(0,0,0,0.1); padding: 12px; }
     </style>
 """, unsafe_allow_html=True)
 
