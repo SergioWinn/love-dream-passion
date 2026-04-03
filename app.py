@@ -2,66 +2,104 @@ import streamlit as st
 import requests
 from streamlit_autorefresh import st_autorefresh
 
-# --- KONFIGURASI HALAMAN ---
-st.set_page_config(page_title="Dashboard Stok JKT48", layout="wide")
+# --- 1. KONFIGURASI HALAMAN (TAB BROWSER NAME) ---
+st.set_page_config(
+    page_title="LOVE DREAM PASSION", # Ganti Nama Tab Browser
+    layout="wide",
+    page_icon="🔴" # Icon kecil merah JKT48 theme
+)
 
-# Silently refresh every 5 seconds (5000ms)
-st_autorefresh(interval=5000, key="jkt48_refresh")
+# --- 2. SILENT AUTO REFRESH ---
+st_autorefresh(interval=100, key="ldp_autorefresh")
 
-# --- UI/UX STYLING MODERN ---
+# --- 3. UI/UX MODERN MINIMALIST STYLING (CSS) ---
 st.markdown("""
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
-    /* Sembunyikan padding atas bawaan Streamlit agar seperti Web App asli */
-    .block-container { padding-top: 2rem; padding-bottom: 2rem; }
+    /* Global Font & Layout Fixes */
+    html, body, [class*="css"] { font-family: 'Inter', sans-serif; color: #1f2937; }
+    .block-container { padding-top: 2rem; padding-bottom: 2rem; max_width: 1400px;}
     
-    /* Header & Live Badge */
-    .header-wrapper { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; border-bottom: 1px solid rgba(150,150,150,0.1); padding-bottom: 15px;}
-    .title-text { font-weight: 800; font-family: 'Inter', 'Helvetica Neue', sans-serif; margin: 0; font-size: 28px; color: #1f2937;}
-    .live-badge { 
-        background-color: rgba(16, 185, 129, 0.1); 
-        color: #10B981; 
-        font-size: 12px; 
-        font-weight: 700; 
-        padding: 4px 10px; 
-        border-radius: 20px;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        animation: pulse 2s infinite;
-    }
-    .live-dot { height: 8px; width: 8px; background-color: #10B981; border-radius: 50%; display: inline-block; }
+    /* Modern Header & LIVE Badge */
+    .ldp-main-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 25px; border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 20px; flex-wrap: wrap; gap: 10px;}
+    .ldp-title { font_weight: 800; font_size: 2.5rem; color: #111827; margin: 0; line-height: 1.2;}
     
-    @keyframes pulse {
-        0% { opacity: 1; }
-        50% { opacity: 0.5; }
-        100% { opacity: 1; }
+    .live-badge-wrapper { display: flex; align-items: center; gap: 8px; font_weight: 700; font_size: 13px; color: #10B981; background_color: rgba(16, 185, 129, 0.1); padding: 6px 14px; border_radius: 30px; border: 1px solid rgba(16, 185, 129, 0.2);}
+    .live-dot { height: 10px; width: 10px; background_color: #10B981; border_radius: 50%; display: inline-block; animation: ldp_pulse 2s infinite; }
+    
+    @keyframes ldp_pulse {
+        0% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.4; transform: scale(1.1); }
+        100% { opacity: 1; transform: scale(1); }
     }
 
-    /* Styling Tabs yang lebih bersih */
-    .stTabs [data-baseweb="tab-list"] { gap: 30px; }
-    .stTabs [data-baseweb="tab"] { height: 50px; white-space: pre-wrap; background-color: transparent; border: none; padding: 10px 0px; font-size: 16px;}
-    .stTabs [aria-selected="true"] { border-bottom: 3px solid #E52B38; color: #E52B38; font-weight: 700;}
+    /* Clean Tabs Styling */
+    .stTabs [data-baseweb="tab-list"] { gap: 40px; }
+    .stTabs [data-baseweb="tab"] { height: 60px; background-color: transparent; border: none; padding: 10px 0px; font-size: 17px; color: #6b7280; font-weight: 400;}
+    .stTabs [aria-selected="true"] { border-bottom: 4px solid #E52B38; color: #E52B38; font-weight: 700;}
+
+    /* Modern Card Layout */
+    .sesi-section { margin-top: 30px; margin-bottom: 50px;}
+    .sesi-header-wrapper { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; flex_wrap: wrap;}
+    .sesi-title { font_size: 1.5rem; font_weight: 700; color: #374151; margin: 0;}
+    .sesi-time-badge { font_size: 14px; font_weight: 400; color: #6b7280; background: #f3f4f6; padding: 4px 10px; border_radius: 8px;}
+    
+    .cards-flex-container { display: flex; flex_wrap: wrap; gap: 18px; justify_content: flex_start; }
+    
+    /* Modern Card Minimalis Design */
+    .ldp-card {
+        background-color: #ffffff;
+        border-radius: 12px; 
+        padding: 22px; 
+        width: 185px; /* Lebar kotak stabil */
+        display: flex; 
+        flex-direction: column; 
+        justify-content: space-between;
+        border: 1px solid rgba(0,0,0,0.04);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+        cursor: default;
+    }
+    .ldp-card:hover { 
+        box-shadow: 0 10px 20px rgba(0,0,0,0.06); 
+        transform: translateY(-5px); 
+        border_color: rgba(0,0,0,0.1);
+    }
+    
+    /* Status Styling */
+    .ldp-card.avail { border-bottom: 4px solid #10B981; }
+    .ldp-card.sold { border-bottom: 4px solid #e5e7eb; background-color: #f9fafb; opacity: 0.7;}
+    
+    /* Card Typography */
+    .card-jalur { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #9ca3af; margin-bottom: 5px; font-weight: 600;}
+    .card-member { font-weight: 700; font-size: 16px; margin-bottom: 18px; line-height: 1.3; color: #111827; height: 2.6em; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;}
+    
+    /* Badge Status Minimalis */
+    .card-badge { align-self: flex-start; font-size: 11px; font-weight: 700; padding: 6px 12px; border_radius: 20px; letter-spacing: 0.3px;}
+    .ldp-card.avail .card-badge { background-color: #ecfdf5; color: #059669; }
+    .ldp-card.sold .card-badge { background-color: #f3f4f6; color: #9ca3af; }
+    
+    /* Input Search Minimalis */
+    .stTextInput input { border_radius: 10px; border: 1px solid rgba(0,0,0,0.1); padding: 12px; }
     </style>
 """, unsafe_allow_html=True)
 
-# Render Header with Live Badge
+# --- 4. RENDER HEADER DENGAN JUDUL BARU & LIVE BADGE ---
 st.markdown("""
-    <div class="header-wrapper">
-        <h2 class="title-text">Ketersediaan Tiket</h2>
-        <div class="live-badge"><span class="live-dot"></span> LIVE</div>
+    <div class="ldp-main-header">
+        <h1 class="ldp-title">Meet & Greet - 23 May</h1>
+        <div class="live-badge-wrapper"><span class="live-dot"></span> LIVE</div>
     </div>
 """, unsafe_allow_html=True)
 
-# --- URL ENDPOINT ---
+# --- 5. URL ENDPOINT & AMBIL DATA ---
 URL_2SHOT = "https://jkt48.com/api/v1/exclusives/EX579E/bonus?lang=id"
 URL_MNG = "https://jkt48.com/api/v1/exclusives/EXE588/bonus?lang=id"
 
-# --- FUNGSI TARIK DATA API ---
-@st.cache_data(ttl=5) 
-def fetch_data(url):
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-    }
+@st.cache_data(ttl=5) # Cache disesuaikan durasi autorefresh
+def fetch_jkt48_data(url):
+    # User-Agent palsu agar tidak diblokir server JKT48
+    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) LDP Modern Monitor v1.0"}
     try:
         response = requests.get(url, headers=headers)
         response.raise_for_status()
@@ -69,84 +107,83 @@ def fetch_data(url):
     except Exception as e:
         return None
 
-# --- FUNGSI RENDER UI MINIMALIST ---
-def render_minimalist_cards(data, search_query=""):
+# --- 6. FUNGSI RENDER UI MODERN CARDS (MINIMALIST) ---
+def render_modern_ldp_cards(data, search_query=""):
     if not data or data.get('status') is not True:
-        st.info("Memuat data terbaru dari server...")
+        # User-friendly warning
+        st.info("Memperbarui data terbaru dari server JKT48...")
         return
     
     try:
         items = data.get('data', []) 
-        
-        st.markdown("""
-            <style>
-            .m-sesi { margin-bottom: 45px; font-family: 'Inter', 'Helvetica Neue', sans-serif;}
-            .m-sesi-title { font-size: 18px; font-weight: 600; margin-bottom: 15px; color: #374151; display: flex; align-items: center; gap: 10px;}
-            .m-sesi-time { font-size: 14px; font-weight: 400; color: #9ca3af; background: #f3f4f6; padding: 2px 8px; border-radius: 6px;}
-            .m-wrapper { display: flex; flex-wrap: wrap; gap: 16px; }
-            
-            /* Enhanced Card Design */
-            .m-card {
-                border: 1px solid rgba(0, 0, 0, 0.05);
-                border-radius: 12px; 
-                padding: 18px; 
-                width: 175px;
-                display: flex; 
-                flex-direction: column; 
-                justify-content: space-between;
-                background-color: #ffffff;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.02);
-                transition: all 0.2s ease;
-            }
-            .m-card:hover { box-shadow: 0 8px 16px rgba(0,0,0,0.06); transform: translateY(-3px); }
-            
-            .m-card.avail { border-bottom: 4px solid #10B981; }
-            .m-card.sold { border-bottom: 4px solid #e5e7eb; background-color: #f9fafb; opacity: 0.7;}
-            
-            .m-jalur { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #6b7280; margin-bottom: 4px; }
-            .m-member { font-weight: 700; font-size: 15px; margin-bottom: 16px; line-height: 1.3; color: #111827;}
-            
-            .m-stock-badge { align-self: flex-start; font-size: 11px; font-weight: 700; padding: 5px 10px; border-radius: 20px; }
-            .m-card.avail .m-stock-badge { background-color: #ecfdf5; color: #059669; }
-            .m-card.sold .m-stock-badge { background-color: #f3f4f6; color: #9ca3af; }
-            </style>
-        """, unsafe_allow_html=True)
+        ada_member_ditemukan = False
 
         for sesi in items:
-            nama_sesi = sesi.get('label', 'Sesi ?')
+            nama_sesi = sesi.get('label', 'Sesi')
             waktu = f"{sesi.get('start_time', '')[:5]} - {sesi.get('end_time', '')[:5]}"
             members = sesi.get('session_members', [])
             
             if search_query:
-                members = [m for m in members if search_query.lower() in m.get('member_name', '').lower()]
+                # Filter member berdasarkan pencarian
+                query = search_query.lower().strip()
+                members = [m for m in members if query in m.get('member_name', '').lower()]
             
-            if not members: continue
+            if not members: continue # Skip sesi kosong
+            
+            ada_member_ditemukan = True
 
             # Modern Section Header
-            st.markdown(f"<div class='m-sesi-title'>{nama_sesi} <span class='m-sesi-time'>🕒 {waktu}</span></div>", unsafe_allow_html=True)
+            st.markdown(f"""
+                <div class="sesi-section">
+                    <div class="sesi-header-wrapper">
+                        <div class="sesi-title">{nama_sesi}</div>
+                        <div class="sesi-time-badge">🕒 {waktu}</div>
+                    </div>
+                    <div class="cards-flex-container">
+            """, unsafe_allow_html=True)
             
-            html_cards = '<div class="m-sesi"><div class="m-wrapper">'
+            # Kumpulkan HTML Kartu dalam satu sesi agar performa render HTML Streamlit lebih mulus
+            html_cards_all = ""
             for m in members:
                 c_class = "avail" if m.get('quota', 0) > 0 else "sold"
-                s_text = f"{m.get('quota', 0)} TERSISA" if c_class == "avail" else "HABIS"
-                # RAHASIA FIX: 1 baris string panjang untuk menghindari bug parser Markdown Streamlit
-                html_cards += f'<div class="m-card {c_class}"><div><div class="m-jalur">{m.get("label", "")}</div><div class="m-member">{m.get("member_name", "")}</div></div><div class="m-stock-badge">{s_text}</div></div>'
-            html_cards += '</div></div>'
+                s_text = f"SISA {m.get('quota', 0)}" if c_class == "avail" else "HABIS"
+                m_name = m.get('member_name', '')
+                jalur = m.get('label', '')
+                
+                # HTML ditulis dalam satu baris panjang untuk menghindari bug parser Markdown Streamlit
+                html_cards_all += f'<div class="ldp-card {c_class}"><div><div class="card-jalur">{jalur}</div><div class="card-member" title="{m_name}">{m_name}</div></div><div class="card-badge">{s_text}</div></div>'
             
-            st.markdown(html_cards, unsafe_allow_html=True)
+            # Tutup Sesi Container
+            st.markdown(f"""
+                        {html_cards_all}
+                    </div>
+                </div>
+            """, unsafe_allow_html=True)
+
+        if not ada_member_ditemukan and search_query:
+            # Not Found Message Ramah
+            st.markdown(f"""
+                <div style='text-align: center; padding: 50px 20px; color: #9ca3af; font_size: 15px; border_radius: 12px; background_color: #f9fafb; border: 1px solid rgba(0,0,0,0.03);'>
+                    🔍 Maaf, Oshi "<b>{search_query}</b>" tidak ditemukan di event Meet & Greet ini.
+                </div>
+            """, unsafe_allow_html=True)
 
     except Exception as e:
-        st.error(f"Terjadi kendala memproses data UI: {e}")
+        # Error handling ramah user awam
+        st.error(f"Terjadi kendala teknis saat menyusun tampilan: {e}")
 
-# --- TABS ---
+# --- 7. MODERN TABS LAYOUT ---
+# Tanpa kode EX lagi di tab title
 tab1, tab2 = st.tabs(["📸 2-Shot", "🤝 Meet & Greet"])
 
 with tab1:
-    search_2s = st.text_input("Cari member favoritmu...", key="search_2s", placeholder="Ketik nama member di sini...")
-    st.markdown("<div style='margin-bottom: 20px;'></div>", unsafe_allow_html=True) # Tambah ruang nafas
-    render_minimalist_cards(fetch_data(URL_2SHOT), search_2s)
+    search_2shot = st.text_input("Cari member 2-Shot favoritmu...", key="s_2shot", placeholder="Ketik nama member kesayanganmu...")
+    st.markdown("<div style='height: 20px;'></div>", unsafe_allow_html=True) # Spacer bersih
+    data_2shot = fetch_jkt48_data(URL_2SHOT)
+    render_modern_ldp_cards(data_2shot, search_2shot)
 
 with tab2:
-    search_mng = st.text_input("Cari member favoritmu...", key="search_mng", placeholder="Ketik nama member di sini...")
-    st.markdown("<div style='margin-bottom: 20px;'></div>", unsafe_allow_html=True)
-    render_minimalist_cards(fetch_data(URL_MNG), search_mng)
+    search_mng = st.text_input("Cari member M&G favoritmu...", key="s_mng", placeholder="Ketik nama member kesayanganmu...")
+    st.markdown("<div style='height: 20px;'></div>", unsafe_allow_html=True)
+    data_mng = fetch_jkt48_data(URL_MNG)
+    render_modern_ldp_cards(data_mng, search_mng)
