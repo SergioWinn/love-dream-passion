@@ -10,7 +10,8 @@ st.set_page_config(
 )
 
 # --- 2. SILENT AUTO REFRESH ---
-st_autorefresh(interval=100, key="ldp_autorefresh")
+# Berjalan diam-diam tanpa indikator loading Streamlit
+st_autorefresh(interval=1000, key="ldp_autorefresh")
 
 # --- 3. UI/UX MODERN MINIMALIST STYLING (CSS) ---
 st.markdown("""
