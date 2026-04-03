@@ -5,10 +5,10 @@ from streamlit_autorefresh import st_autorefresh
 # --- 1. KONFIGURASI HALAMAN ---
 st.set_page_config(page_title="LOVE DREAM PASSION", layout="wide", page_icon="🔴")
 
-# Silent refresh
-st_autorefresh(interval=500, key="ldp_autorefresh")
+# --- 2. SILENT AUTO REFRESH (2.5 Detik) ---
+st_autorefresh(interval=2500, key="ldp_autorefresh")
 
-# --- 2. UI/UX STYLING (MODERN, MINIMALIST, ADAPTIVE) ---
+# --- 3. UI/UX STYLING (MOBILE RESPONSIVE + RED SOLD OUT) ---
 css = """
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
@@ -31,16 +31,25 @@ html, body, .stApp { font-family: 'Inter', sans-serif; }
 .sesi-title { font-size: 1.5rem; font-weight: 700; margin: 0; }
 .sesi-time-badge { font-size: 14px; font-weight: 600; opacity: 0.8; background: rgba(128,128,128,0.15); padding: 4px 12px; border-radius: 8px; }
 
-/* GRID SYSTEM */
-.cards-flex-container { display: grid; grid-template-columns: repeat(auto-fit, 185px); gap: 18px; justify-content: center; }
+/* GRID SYSTEM PC/TABLET */
+.cards-flex-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(175px, 1fr)); gap: 18px; justify-content: center; }
+
+/* --- PERBAIKAN: KHUSUS LAYAR HP (PAKSA 2 KOLOM) --- */
+@media (max-width: 500px) {
+    .cards-flex-container { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .ldp-card { padding: 15px 12px !important; }
+    .card-member { font-size: 13.5px !important; margin-bottom: 12px !important; height: 2.8em !important; }
+    .card-badge { font-size: 9px !important; padding: 5px 8px !important; }
+    .card-jalur { font-size: 9.5px !important; }
+}
 
 .ldp-card { background-color: rgba(128,128,128, 0.03); border-radius: 12px; padding: 22px; width: 100%; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid rgba(128,128,128,0.2); box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1); cursor: default; }
 .ldp-card:hover { transform: translateY(-5px); border-color: rgba(128,128,128,0.4); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
 
-/* STATUS COLORS */
+/* --- PERBAIKAN: WARNA STATUS (MERAH UNTUK HABIS) --- */
 .ldp-card.avail { border-bottom: 4px solid #10B981; }
-.ldp-card.warn { border-bottom: 4px solid #FBBF24; } /* Kuning Modern */
-.ldp-card.sold { border-bottom: 4px solid rgba(128,128,128,0.3); background-color: rgba(128,128,128,0.08); opacity: 0.6; filter: grayscale(50%); }
+.ldp-card.warn { border-bottom: 4px solid #FBBF24; }
+.ldp-card.sold { border-bottom: 4px solid #EF4444; background-color: rgba(239, 68, 68, 0.02); opacity: 0.85; filter: grayscale(10%); } /* Merah tegas */
 
 .card-jalur { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.6; margin-bottom: 5px; font-weight: 600; }
 .card-member { font-weight: 700; font-size: 16px; margin-bottom: 18px; line-height: 1.3; height: 2.6em; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
@@ -48,17 +57,17 @@ html, body, .stApp { font-family: 'Inter', sans-serif; }
 .card-badge { align-self: center; font-size: 10px; font-weight: 800; padding: 6px 12px; border-radius: 20px; letter-spacing: 0.5px; width: 100%; text-align: center; text-transform: uppercase;}
 .ldp-card.avail .card-badge { background-color: rgba(16, 185, 129, 0.15); color: #10B981; }
 .ldp-card.warn .card-badge { background-color: rgba(251, 191, 36, 0.15); color: #D97706; }
-.ldp-card.sold .card-badge { background-color: rgba(128,128,128,0.2); color: inherit; opacity: 0.8; }
+.ldp-card.sold .card-badge { background-color: rgba(239, 68, 68, 0.15); color: #EF4444; } /* Latar transparan merah & teks merah */
 
 .stTextInput input { border-radius: 10px; border: 1px solid rgba(128,128,128,0.3); padding: 12px; background: transparent; }
 </style>
 """
 st.markdown(css.replace('\n', '').replace('\r', ''), unsafe_allow_html=True)
 
-# --- 3. RENDER HEADER ---
+# --- 4. RENDER HEADER ---
 st.markdown('<div class="ldp-main-header"><h1 class="ldp-title">Meet & Greet - 23 May</h1><div class="live-badge-wrapper"><span class="live-dot"></span> LIVE</div></div>', unsafe_allow_html=True)
 
-# --- 4. DATA FETCHING ---
+# --- 5. DATA FETCHING ---
 URL_2SHOT = "https://jkt48.com/api/v1/exclusives/EX579E/bonus?lang=id"
 URL_MNG = "https://jkt48.com/api/v1/exclusives/EXE588/bonus?lang=id"
 
@@ -72,20 +81,16 @@ def fetch_jkt48_data(url):
     except:
         return None
 
-# --- 5. LOGIKA STATUS (3 INDIKATOR) ---
+# --- 6. LOGIKA STATUS ---
 def get_status_logic(quota, event_type):
     if quota <= 0:
         return "sold", "HABIS"
-    
-    # Threshold berbeda sesuai request
     threshold = 5 if event_type == "2shot" else 20
-    
     if quota < threshold:
         return "warn", f"HAMPIR HABIS ({quota})"
-    
     return "avail", f"TERSEDIA ({quota})"
 
-# --- 6. RENDER UI CARDS ---
+# --- 7. RENDER UI CARDS ---
 def render_modern_ldp_cards(data, search_query="", event_type=""):
     if not data or data.get('status') is not True:
         st.info("Sinkronisasi data server...")
@@ -125,7 +130,7 @@ def render_modern_ldp_cards(data, search_query="", event_type=""):
     except Exception as e:
         st.error(f"UI Render Error: {e}")
 
-# --- 7. TABS ---
+# --- 8. TABS ---
 tab1, tab2 = st.tabs(["📸 2-Shot", "🤝 Meet & Greet"])
 
 with tab1:
