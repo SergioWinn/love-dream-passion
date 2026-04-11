@@ -85,12 +85,6 @@ st.markdown(css.replace('\n', '').replace('\r', ''), unsafe_allow_html=True)
 # --- 4. RENDER HEADER ---
 st.markdown('<div class="ldp-header"><h1 class="ldp-title">Meet & Greet - 23 May</h1><div class="live-badge"><span class="live-dot"></span> MONITORING LIVE</div></div>', unsafe_allow_html=True)
 
-# ===== TAMBAHKAN KODE INI UNTUK TESTING =====
-if st.button("🧪 Test Notifikasi Telegram"):
-    send_telegram_alert("✅ <b>TESTING BERHASIL!</b>\nBot Restock LDP sudah berhasil terhubung.")
-    st.success("Pesan test sedang dikirim ke Telegram!")
-# ============================================
-
 # --- 5. DATA ENGINE ---
 @st.cache_data(ttl=4)
 def fetch_data(url):
