@@ -8,6 +8,24 @@ st.set_page_config(page_title="LOVE DREAM PASSION", layout="wide", page_icon="�
 # --- 2. STABLE REFRESH (5 Detik) ---
 st_autorefresh(interval=5000, key="ldp_stable_refresh")
 
+# --- INISIALISASI SESSION STATE UNTUK TRACKING KUOTA ---
+if "quota_history" not in st.session_state:
+    st.session_state.quota_history = {}
+
+# --- FUNGSI NOTIFIKASI TELEGRAM ---
+def send_telegram_alert(message):
+    try:
+        # Mengambil token dan ID dari brankas rahasia Streamlit Cloud
+        bot_token = st.secrets["TELEGRAM_BOT_TOKEN"]
+        chat_id = st.secrets["TELEGRAM_CHAT_ID"]
+        
+        url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
+        payload = {"chat_id": chat_id, "text": message, "parse_mode": "HTML"}
+        requests.post(url, json=payload, timeout=5)
+    except Exception as e:
+        # Jika st.secrets belum diatur, lewati tanpa membuat error di layar
+        pass
+
 # --- 3. PREMIUM UI STYLING ---
 css = """
 <style>
@@ -78,7 +96,6 @@ def fetch_data(url):
         return None
 
 def draw_section(url, key_prefix, ev_type):
-    # Search Box - Realtime via Session State
     s_key = f"input_{key_prefix}"
     st.text_input("Cari Oshi...", key=s_key, placeholder="Ketik nama member...")
     query = st.session_state.get(s_key, "").lower().strip()
@@ -99,12 +116,28 @@ def draw_section(url, key_prefix, ev_type):
         
         html = '<div class="cards-grid">'
         for m in members:
-            q = m.get('quota', 0)
+            current_quota = m.get('quota', 0)
             limit = 5 if ev_type == "2shot" else 20
             
-            if q <= 0: cls, lbl = "sold", "HABIS"
-            elif q < limit: cls, lbl = "warn", f"SISA {q}"
-            else: cls, lbl = "avail", f"SISA {q}"
+            # --- CEK RESTOCK TIKET ---
+            ticket_key = f"{ev_type}_{sesi['label']}_{m['member_name']}_{m['label']}"
+            
+            if ticket_key in st.session_state.quota_history:
+                prev_quota = st.session_state.quota_history[ticket_key]
+                if current_quota > prev_quota:
+                    # Notifikasi Streamlit Toast
+                    st.toast(f"RESTOCK: {m['member_name']} ({m['label']}) - Sesi {sesi['label']} (Kuota: {current_quota})", icon="🚨")
+                    # Notifikasi Telegram
+                    alert_msg = f"🚨 <b>RESTOCK ALERT!</b>\nOshi: <b>{m['member_name']}</b>\nJalur: {m['label']}\nSesi: {sesi['label']}\nKuota Nambah: {prev_quota} ➡️ {current_quota}"
+                    send_telegram_alert(alert_msg)
+                    
+            # Simpan kuota saat ini untuk perbandingan di refresh berikutnya
+            st.session_state.quota_history[ticket_key] = current_quota
+            # --------------------------
+            
+            if current_quota <= 0: cls, lbl = "sold", "HABIS"
+            elif current_quota < limit: cls, lbl = "warn", f"SISA {current_quota}"
+            else: cls, lbl = "avail", f"SISA {current_quota}"
             
             html += f'<div class="ldp-card {cls}"><div class="c-jalur">{m["label"]}</div><div class="c-member">{m["member_name"]}</div><div class="c-badge">{lbl}</div></div>'
         
