@@ -12,20 +12,6 @@ st_autorefresh(interval=5000, key="ldp_stable_refresh")
 if "quota_history" not in st.session_state:
     st.session_state.quota_history = {}
 
-# --- FUNGSI NOTIFIKASI TELEGRAM ---
-def send_telegram_alert(message):
-    try:
-        # Mengambil token dan ID dari brankas rahasia Streamlit Cloud
-        bot_token = st.secrets["TELEGRAM_BOT_TOKEN"]
-        chat_id = st.secrets["TELEGRAM_CHAT_ID"]
-        
-        url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
-        payload = {"chat_id": chat_id, "text": message, "parse_mode": "HTML"}
-        requests.post(url, json=payload, timeout=5)
-    except Exception as e:
-        # Jika st.secrets belum diatur, lewati tanpa membuat error di layar
-        pass
-
 # --- 3. PREMIUM UI STYLING ---
 css = """
 <style>
@@ -125,11 +111,8 @@ def draw_section(url, key_prefix, ev_type):
             if ticket_key in st.session_state.quota_history:
                 prev_quota = st.session_state.quota_history[ticket_key]
                 if current_quota > prev_quota:
-                    # Notifikasi Streamlit Toast
+                    # Notifikasi Streamlit Toast (Visual di UI)
                     st.toast(f"RESTOCK: {m['member_name']} ({m['label']}) - Sesi {sesi['label']} (Kuota: {current_quota})", icon="🚨")
-                    # Notifikasi Telegram
-                    alert_msg = f"🚨 <b>RESTOCK ALERT!</b>\nOshi: <b>{m['member_name']}</b>\nJalur: {m['label']}\nSesi: {sesi['label']}\nKuota Nambah: {prev_quota} ➡️ {current_quota}"
-                    send_telegram_alert(alert_msg)
                     
             # Simpan kuota saat ini untuk perbandingan di refresh berikutnya
             st.session_state.quota_history[ticket_key] = current_quota
